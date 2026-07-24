@@ -408,8 +408,8 @@ tbody tr:hover td{background:var(--surface2)}
   </div>
   <div class="tc">
     <table>
-      <thead><tr><th style="width:26%">Product ID</th><th style="width:12%">Product Name</th><th style="width:10%">Category</th><th style="width:10%">UOM</th><th style="width:8%">الكمية</th><th style="width:12%">الحد الأدنى</th><th style="width:10%">Type</th><th style="width:12%"></th></tr></thead>
-      <tbody id="inv-body"><tr class="er"><td colspan="8"><div class="ldr"><div class="spin"></div>جارٍ التحميل...</div></td></tr></tbody>
+      <thead><tr><th style="width:10%">كود الصنف</th><th style="width:20%">اسم الصنف</th><th style="width:11%">الفئة</th><th style="width:9%">النوع</th><th style="width:9%">الكمية</th><th style="width:7%">الوحدة</th><th style="width:11%">الحد الأدنى</th><th style="width:9%">الحالة</th><th style="width:12%"></th></tr></thead>
+      <tbody id="inv-body"><tr class="er"><td colspan="9"><div class="ldr"><div class="spin"></div>جارٍ التحميل...</div></td></tr></tbody>
     </table>
   </div>
 </div>
@@ -677,8 +677,8 @@ tbody tr:hover td{background:var(--surface2)}
     </div>
     <div class="tc">
       <table>
-        <thead><tr><th style="width:30%">اسم المنتج</th><th style="width:16%">الفئة</th><th style="width:12%">النوع</th><th style="width:14%">الوحدة</th><th style="width:14%">الحد الأدنى</th><th style="width:14%">الكمية الحالية</th></tr></thead>
-        <tbody id="src-prod-body"><tr class="er"><td colspan="6"><div class="ldr"><div class="spin"></div></div></td></tr></tbody>
+        <thead><tr><th style="width:10%">كود الصنف</th><th style="width:24%">اسم المنتج</th><th style="width:14%">الفئة</th><th style="width:10%">النوع</th><th style="width:12%">الوحدة</th><th style="width:14%">الحد الأدنى</th><th style="width:14%">الكمية الحالية</th></tr></thead>
+        <tbody id="src-prod-body"><tr class="er"><td colspan="7"><div class="ldr"><div class="spin"></div></div></td></tr></tbody>
       </table>
     </div>
   </div>
@@ -719,7 +719,7 @@ function handle(e){
   try{
     var ss=SpreadsheetApp.getActiveSpreadsheet(),p=e.parameter,a=p.action,b={};
     if(e.postData)b=JSON.parse(e.postData.contents);
-    if(a==="getProducts"){var s=goc(ss,"مخزون",["Product ID","Product Name","Category","UOM","الكمية","الحد الأدنى","Type"]);return out({ok:true,data:s.getDataRange().getValues()});}
+    if(a==="getProducts"){var s=goc(ss,"مخزون",["Product ID","Product Name","Category","UOM","Quantity","Min Qty","Type"]);return out({ok:true,data:s.getDataRange().getValues()});}
     if(a==="getMovements"){var s=goc(ss,"حركات",["الصنف","النوع","الكمية","الرصيد بعده","الوحدة","الدفعة","الوجهة","ملاحظة","بواسطة","التاريخ"]);return out({ok:true,data:s.getDataRange().getValues()});}
     if(a==="getDestinations"){var s=goc(ss,"وجهات",["الوجهة"]);return out({ok:true,data:s.getDataRange().getValues()});}
     if(a==="getLog"){var s=goc(ss,"سجل",["الوقت","المستخدم","النوع","التفاصيل","الكمية","الوجهة","ملاحظة"]);return out({ok:true,data:s.getDataRange().getValues()});}
@@ -727,12 +727,12 @@ function handle(e){
     if(a==="getRecipes"){var s=goc(ss,"وصفات",["المعرف","اسم الوصفة","المنتج الناتج","كمية الناتج","الوحدة"]);return out({ok:true,data:s.getDataRange().getValues()});}
     if(a==="getRecipeIngredients"){var s=goc(ss,"مكونات الوصفة",["معرف الوصفة","اسم الوصفة","المكون","الكمية","الوحدة"]);return out({ok:true,data:s.getDataRange().getValues()});}
     if(a==="getBatches"){var s=goc(ss,"دفعات",["كود الدفعة","المنتج","الكمية الأصلية","الكمية المتبقية","تاريخ الإنتاج","المصدر","بواسطة","ملاحظة"]);return out({ok:true,data:s.getDataRange().getValues()});}
-    if(a==="addProduct"){var s=goc(ss,"مخزون",["المنتج","الفئة","النوع","الكمية","الحد الأدنى","الوحدة"]);s.appendRow([b.name,b.category,b.type||"خام",b.qty,b.minQty,b.unit]);addLog(ss,"إضافة صنف",b.user,b.name,b.qty,"","");return out({ok:true});}
+    if(a==="addProduct"){var s=goc(ss,"مخزون",["Product ID","Product Name","Category","UOM","Quantity","Min Qty","Type"]);s.appendRow([b.id||"",b.name,b.category,b.unit,b.qty,b.minQty,b.type||"خام"]);addLog(ss,"إضافة صنف",b.user,b.name,b.qty,"","");return out({ok:true});}
     if(a==="addMovement"){var s=goc(ss,"حركات",["الصنف","النوع","الكمية","الرصيد بعده","الوحدة","الدفعة","الوجهة","ملاحظة","بواسطة","التاريخ"]);s.appendRow([b.product,b.type,b.qty,b.balance,b.unit,b.batch||"",b.dest||"",b.note||"",b.user||"",b.date]);addLog(ss,"حركة "+b.type,b.user||"",b.product,b.qty,b.dest||"",b.note||"");return out({ok:true});}
     if(a==="addDestination"){var s=goc(ss,"وجهات",["الوجهة"]);s.appendRow([b.name]);return out({ok:true});}
     if(a==="addUser"){var s=goc(ss,"مستخدمين",["الاسم","كلمة السر","الصلاحية"]);s.appendRow([b.name,b.pass,b.role]);return out({ok:true});}
     if(a==="updateUser"){var s=ss.getSheetByName("مستخدمين");if(s){s.getRange(b.row,1).setValue(b.name);s.getRange(b.row,2).setValue(b.pass);s.getRange(b.row,3).setValue(b.role);}return out({ok:true});}
-    if(a==="updateQty"){var s=ss.getSheetByName("مخزون");s.getRange(b.row,4).setValue(b.qty);return out({ok:true});}
+    if(a==="updateQty"){var s=ss.getSheetByName("مخزون");s.getRange(b.row,5).setValue(b.qty);return out({ok:true});}
     if(a==="deleteProduct"){var s=ss.getSheetByName("مخزون");addLog(ss,"حذف",b.user||"",b.name,0,"","");s.deleteRow(b.row);return out({ok:true});}
     if(a==="deleteDestination"){var s=ss.getSheetByName("وجهات");s.deleteRow(b.row);return out({ok:true});}
     if(a==="deleteUser"){var s=ss.getSheetByName("مستخدمين");s.deleteRow(b.row);return out({ok:true});}
@@ -761,13 +761,13 @@ function handle(e){
       for(var c=0;c&lt;consumed.length;c++){
         var item=consumed[c];
         for(var r=1;r&lt;pvals.length;r++){
-          if(pvals[r][0]===item.name){
-            var curQ=parseFloat(pvals[r][3])||0;
+          if(pvals[r][1]===item.name){
+            var curQ=parseFloat(pvals[r][4])||0;
             var newQ=curQ-parseFloat(item.qty);
             if(newQ&lt;0)return out({ok:false,error:"insufficient:"+item.name});
-            pss.getRange(r+1,4).setValue(newQ);
+            pss.getRange(r+1,5).setValue(newQ);
             var usedBatches=[];
-            var itemType=String(pvals[r][2]||"خام");
+            var itemType=String(pvals[r][6]||"خام");
             if(itemType==="مصنّع"){
               if(!batchSheetForConsume)batchSheetForConsume=goc(ss,"دفعات",["كود الدفعة","المنتج","الكمية الأصلية","الكمية المتبقية","تاريخ الإنتاج","المصدر","بواسطة","ملاحظة"]);
               var bvalsC=batchSheetForConsume.getDataRange().getValues();
@@ -790,12 +790,12 @@ function handle(e){
       }
       var outRow=-1;
       var pvals2=pss.getDataRange().getValues();
-      for(var r2=1;r2&lt;pvals2.length;r2++){if(pvals2[r2][0]===b.product){outRow=r2+1;break;}}
+      for(var r2=1;r2&lt;pvals2.length;r2++){if(pvals2[r2][1]===b.product){outRow=r2+1;break;}}
       var newOutQty=parseFloat(b.qty);
       if(outRow>0){
-        var curOutQ=parseFloat(pvals2[outRow-1][3])||0;
+        var curOutQ=parseFloat(pvals2[outRow-1][4])||0;
         newOutQty=curOutQ+parseFloat(b.qty);
-        pss.getRange(outRow,4).setValue(newOutQty);
+        pss.getRange(outRow,5).setValue(newOutQty);
       }
       var bs=goc(ss,"دفعات",["كود الدفعة","المنتج","الكمية الأصلية","الكمية المتبقية","تاريخ الإنتاج","المصدر","بواسطة","ملاحظة"]);
       bs.appendRow([b.batchCode,b.product,b.qty,b.qty,b.date,b.source||"",b.user||"",b.note||""]);
@@ -817,10 +817,10 @@ function handle(e){
       var pvals3=pss2.getDataRange().getValues();
       var newBal=0;
       for(var m=1;m&lt;pvals3.length;m++){
-        if(pvals3[m][0]===b.product){
-          var curQ2=parseFloat(pvals3[m][3])||0;
+        if(pvals3[m][1]===b.product){
+          var curQ2=parseFloat(pvals3[m][4])||0;
           newBal=curQ2-wq;
-          pss2.getRange(m+1,4).setValue(newBal);
+          pss2.getRange(m+1,5).setValue(newBal);
           break;
         }
       }
@@ -887,7 +887,8 @@ function out(obj){return ContentService.createTextOutput(JSON.stringify(obj)).se
   <div class="modal">
     <div class="mh"><h3>إضافة صنف جديد</h3><button class="mc" onclick="closeModal('modal-p')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="mb">
-      <div class="fd full"><label>اسم الصنف *</label><input type="text" id="p-name" placeholder="مثال: أرز بسمتي"></div>
+      <div class="fd"><label>كود الصنف (تلقائي)</label><input type="text" id="p-id" readonly></div>
+      <div class="fd"><label>اسم الصنف *</label><input type="text" id="p-name" placeholder="مثال: أرز بسمتي"></div>
       <div class="fd"><label>الفئة *</label><input type="text" id="p-cat" placeholder="مثال: مواد غذائية"></div>
       <div class="fd"><label>النوع</label><select id="p-type"><option value="خام">خام</option><option value="مصنّع">مصنّع</option></select></div>
       <div class="fd"><label>وحدة القياس *</label><input type="text" id="p-unit" placeholder="كيس، كرتون، قطعة..."></div>
@@ -1089,7 +1090,7 @@ function parseSheetUsers(data){
   localStorage.setItem('inv_users',JSON.stringify(usersCache));
 }
 
-function parseProducts(data){products=data.slice(1).filter(r=>r[0]).map((r,i)=>({row:i+2,name:String(r[0]),category:String(r[1]||''),type:String(r[2]||'خام')||'خام',qty:parseFloat(r[3])||0,minQty:parseFloat(r[4])||0,unit:String(r[5]||'قطعة')}));populateCatFilter();}
+function parseProducts(data){products=data.slice(1).filter(r=>r[1]).map((r,i)=>({row:i+2,id:String(r[0]||''),name:String(r[1]),category:String(r[2]||''),unit:String(r[3]||'قطعة'),qty:parseFloat(r[4])||0,minQty:parseFloat(r[5])||0,type:String(r[6]||'خام')||'خام'}));populateCatFilter();}
 function parseMovements(data){movements=data.slice(1).filter(r=>r[0]).map(r=>({product:String(r[0]),type:String(r[1]),qty:parseFloat(r[2])||0,balance:parseFloat(r[3])||0,unit:String(r[4]||''),batch:String(r[5]||''),dest:String(r[6]||''),note:String(r[7]||''),user:String(r[8]||''),date:String(r[9]||'')}));}
 function parseDests(data){const list=data.slice(1).filter(r=>r[0]).map(r=>String(r[0]));destinations=list.length?list:[...DEFAULT_DESTS];}
 function parseLog(data){auditLog=data.slice(1).filter(r=>r[0]).map(r=>({time:String(r[0]),user:String(r[1]||''),type:String(r[2]||''),detail:String(r[3]||''),qty:String(r[4]||''),dest:String(r[5]||''),note:String(r[6]||'')}));}
@@ -1163,10 +1164,11 @@ function renderDash(){
 function renderInv(){
   const q=document.getElementById('inv-q').value.trim();
   const cat=document.getElementById('inv-cat').value,st=document.getElementById('inv-st').value,ty=document.getElementById('inv-type').value;
-  const list=products.filter(p=>(!q||p.name.includes(q)||p.category.includes(q))&&(!cat||p.category===cat)&&(!st||getS(p)===st)&&(!ty||p.type===ty));
+  const list=products.filter(p=>(!q||p.name.includes(q)||p.category.includes(q)||(p.id&&p.id.toLowerCase().includes(q.toLowerCase())))&&(!cat||p.category===cat)&&(!st||getS(p)===st)&&(!ty||p.type===ty));
   const tbody=document.getElementById('inv-body');
-  if(!list.length){tbody.innerHTML='<tr class="er"><td colspan="8">لا توجد نتائج</td></tr>';return}
+  if(!list.length){tbody.innerHTML='<tr class="er"><td colspan="9">لا توجد نتائج</td></tr>';return}
   tbody.innerHTML=list.map(p=>`<tr>
+    <td style="font-family:monospace;color:var(--text2)">${p.id||'—'}</td>
     <td style="font-weight:500">${p.name}</td>
     <td><span class="ctag">${p.category}</span></td>
     <td>${typeTag(p.type)}</td>
@@ -1465,8 +1467,8 @@ async function testWA(){
 ══════════════════════════════════════════════ */
 function renderSrcProducts(){
   const tbody=document.getElementById('src-prod-body');
-  if(!products.length){tbody.innerHTML='<tr class="er"><td colspan="6">أضف منتجاً أعلاه</td></tr>';return}
-  tbody.innerHTML=products.map(p=>`<tr><td style="font-weight:500">${p.name}</td><td><span class="ctag">${p.category}</span></td><td>${typeTag(p.type)}</td><td style="color:var(--text2)">${p.unit}</td><td style="color:var(--text2)">${fmt(p.minQty)} ${p.unit}</td><td>${fmt(p.qty)} ${p.unit}</td></tr>`).join('');
+  if(!products.length){tbody.innerHTML='<tr class="er"><td colspan="7">أضف منتجاً أعلاه</td></tr>';return}
+  tbody.innerHTML=products.map(p=>`<tr><td style="font-family:monospace;color:var(--text2)">${p.id||'—'}</td><td style="font-weight:500">${p.name}</td><td><span class="ctag">${p.category}</span></td><td>${typeTag(p.type)}</td><td style="color:var(--text2)">${p.unit}</td><td style="color:var(--text2)">${fmt(p.minQty)} ${p.unit}</td><td>${fmt(p.qty)} ${p.unit}</td></tr>`).join('');
 }
 function renderSrcDests(){
   const tbody=document.getElementById('src-dest-body');
@@ -1492,11 +1494,11 @@ function hideProdDrop(){const d=document.getElementById('prod-drop');if(d)d.styl
 function filterProdDrop(q){
   const drop=document.getElementById('prod-drop');
   if(!drop)return;
-  const list=q.trim()?products.filter(p=>p.name.includes(q)||p.category.includes(q)):products;
+  const list=q.trim()?products.filter(p=>p.name.includes(q)||p.category.includes(q)||(p.id&&p.id.toLowerCase().includes(q.toLowerCase()))):products;
   if(!list.length){
     drop.innerHTML='<div class="prod-item no-res">لا توجد نتائج</div>';
   }else{
-    drop.innerHTML=list.slice(0,12).map(p=>`<div class="prod-item" onmousedown="selectProduct('${p.name.replace(/'/g,"\\'")}')"><span class="prod-item-name">${p.name} ${p.type==='مصنّع'?'🏭':''}</span><span class="prod-item-sub">${p.category} · ${fmt(p.qty)} ${p.unit}</span></div>`).join('');
+    drop.innerHTML=list.slice(0,12).map(p=>`<div class="prod-item" onmousedown="selectProduct('${p.name.replace(/'/g,"\\'")}')"><span class="prod-item-name">${p.name} ${p.type==='مصنّع'?'🏭':''}</span><span class="prod-item-sub">${p.id?p.id+' · ':''}${p.category} · ${fmt(p.qty)} ${p.unit}</span></div>`).join('');
   }
   drop.style.display='block';
 }
@@ -1875,14 +1877,22 @@ function renderBatches(){
 /* ══════════════════════════════════════════════
    SOURCES CRUD
 ══════════════════════════════════════════════ */
+function genProductId(){
+  let max=0;
+  products.forEach(p=>{const m=/^P(\d+)$/.exec(p.id||'');if(m)max=Math.max(max,parseInt(m[1],10));});
+  return 'P'+String(max+1).padStart(4,'0');
+}
+
 async function addSrcProd(){
   const name=document.getElementById('sp-name').value.trim(),cat=document.getElementById('sp-cat').value.trim(),unit=document.getElementById('sp-unit').value.trim()||'قطعة',minQty=parseFloat(document.getElementById('sp-min').value)||5;
   const type=document.getElementById('sp-type').value||'خام';
   if(!name||!cat){toast('اسم المنتج والفئة مطلوبان','err');return}
   if(!hasScript()){toast('أكمل إعداد الاتصال أولاً','err');return}
+  if(products.find(p=>p.name===name)){toast('اسم المنتج موجود مسبقاً','err');return}
+  const id=genProductId();
   setSyncing('جارٍ الحفظ...');
-  const r=await api('addProduct',{name,category:cat,type,qty:0,minQty,unit,user:currentUser?.name||''});
-  if(r){['sp-name','sp-cat','sp-unit','sp-min'].forEach(id=>document.getElementById(id).value='');await loadAll();toast(`تم إضافة "${name}"`)}
+  const r=await api('addProduct',{id,name,category:cat,type,qty:0,minQty,unit,user:currentUser?.name||''});
+  if(r){['sp-name','sp-cat','sp-unit','sp-min'].forEach(id=>document.getElementById(id).value='');await loadAll();toast(`تم إضافة "${name}" — كود الصنف: ${id}`)}
   else{toast('فشل الحفظ','err');setSynced()}
 }
 
@@ -1904,17 +1914,19 @@ async function delDest(row,name){
   if(r){await loadAll();toast(`تم حذف "${name}"`)}else toast('تعذر الحذف','err');setSynced();
 }
 
-function openAddModal(){['p-name','p-cat','p-unit','p-qty','p-min'].forEach(id=>document.getElementById(id).value='');document.getElementById('p-type').value='خام';document.getElementById('modal-p').classList.add('open');}
+function openAddModal(){['p-name','p-cat','p-unit','p-qty','p-min'].forEach(id=>document.getElementById(id).value='');document.getElementById('p-type').value='خام';const idField=document.getElementById('p-id');if(idField)idField.value=genProductId();document.getElementById('modal-p').classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 
 async function saveProduct(){
   const name=document.getElementById('p-name').value.trim(),cat=document.getElementById('p-cat').value.trim(),unit=document.getElementById('p-unit').value.trim()||'قطعة',qty=parseFloat(document.getElementById('p-qty').value)||0,minQty=parseFloat(document.getElementById('p-min').value)||5;
   const type=document.getElementById('p-type').value||'خام';
+  const id=(document.getElementById('p-id')&&document.getElementById('p-id').value.trim())||genProductId();
   if(!name||!cat){toast('اسم الصنف والفئة مطلوبان','err');return}
+  if(products.find(p=>p.name===name)){toast('اسم الصنف موجود مسبقاً','err');return}
   if(!hasScript()){toast('أكمل إعداد الاتصال أولاً','err');closeModal('modal-p');return}
   const btn=document.getElementById('save-btn');btn.disabled=true;setSyncing('جارٍ الحفظ...');
-  const r=await api('addProduct',{name,category:cat,type,qty,minQty,unit,user:currentUser?.name||''});
-  if(r){closeModal('modal-p');await loadAll();toast(`تم إضافة "${name}" بنجاح`);}
+  const r=await api('addProduct',{id,name,category:cat,type,qty,minQty,unit,user:currentUser?.name||''});
+  if(r){closeModal('modal-p');await loadAll();toast(`تم إضافة "${name}" بنجاح — كود الصنف: ${id}`);}
   else{toast('فشل الحفظ','err');setSynced()}
   btn.disabled=false;
 }
