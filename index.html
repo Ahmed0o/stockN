@@ -719,7 +719,7 @@ function handle(e){
   try{
     var ss=SpreadsheetApp.getActiveSpreadsheet(),p=e.parameter,a=p.action,b={};
     if(e.postData)b=JSON.parse(e.postData.contents);
-    if(a==="getProducts"){var s=goc(ss,"مخزون",["المنتج","الفئة","النوع","الكمية","الحد الأدنى","الوحدة"]);return out({ok:true,data:s.getDataRange().getValues()});}
+    if(a==="getProducts"){var s=goc(ss,"مخزون",["Product ID","Product Name","Category","UOM","الكمية","الحد الأدنى","Type"]);return out({ok:true,data:s.getDataRange().getValues()});}
     if(a==="getMovements"){var s=goc(ss,"حركات",["الصنف","النوع","الكمية","الرصيد بعده","الوحدة","الدفعة","الوجهة","ملاحظة","بواسطة","التاريخ"]);return out({ok:true,data:s.getDataRange().getValues()});}
     if(a==="getDestinations"){var s=goc(ss,"وجهات",["الوجهة"]);return out({ok:true,data:s.getDataRange().getValues()});}
     if(a==="getLog"){var s=goc(ss,"سجل",["الوقت","المستخدم","النوع","التفاصيل","الكمية","الوجهة","ملاحظة"]);return out({ok:true,data:s.getDataRange().getValues()});}
