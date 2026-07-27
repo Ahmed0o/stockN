@@ -403,7 +403,7 @@ tbody tr:hover td{background:var(--surface2)}
   <div class="toolbar">
     <div class="sw"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="بحث..." id="inv-q" oninput="renderInv()"></div>
     <select class="filt" id="inv-cat" onchange="renderInv()"><option value="">كل الفئات</option></select>
-    <select class="filt" id="inv-type" onchange="renderInv()"><option value="">كل الأنواع</option><option value="خام">خامات</option><option value="مصنّع">مصنّعات</option></select>
+    <select class="filt" id="inv-type" onchange="renderInv()"><option value="">كل الأنواع</option><option value="خام">خامات</option><option value="تصنيع">تصنيع</option></select>
     <select class="filt" id="inv-st" onchange="renderInv()"><option value="">كل الحالات</option><option value="ok">متوفر</option><option value="low">منخفض</option><option value="out">نفذ</option></select>
   </div>
   <div class="tc">
@@ -437,7 +437,7 @@ tbody tr:hover td{background:var(--surface2)}
     </div>
     <!-- اختيار الدفعة (يظهر فقط للأصناف المصنّعة عند الصرف) -->
     <div id="batch-pick-wrap" style="display:none;margin-top:14px">
-      <label style="font-size:12px;color:var(--text2);font-weight:500;display:block;margin-bottom:6px">اختر الدفعة (هذا الصنف مصنّع ومقسّم دفعات)</label>
+      <label style="font-size:12px;color:var(--text2);font-weight:500;display:block;margin-bottom:6px">اختر الدفعة (هذا الصنف تصنيع ومقسّم دفعات)</label>
       <div class="batch-picker" id="batch-picker"></div>
     </div>
     <!-- صادر: يحتاج وجهة -->
@@ -526,7 +526,7 @@ tbody tr:hover td{background:var(--surface2)}
     <!-- وضع التصنيع الحر -->
     <div id="prod-free-box" class="mform" style="display:none">
       <h3>تصنيع حر (بدون وصفة)</h3>
-      <p style="font-size:12px;color:var(--text2);margin-bottom:14px">حدد الصنف الناتج (لازم يكون من نوع "مصنّع") والكمية، ثم أضف الخامات المستهلكة وكمياتها.</p>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px">حدد الصنف الناتج (لازم يكون من نوع "تصنيع") والكمية، ثم أضف الخامات المستهلكة وكمياتها.</p>
       <div class="mgrid" style="grid-template-columns:2fr 1fr 1fr">
         <div class="fd">
           <label>الصنف الناتج</label>
@@ -557,7 +557,7 @@ tbody tr:hover td{background:var(--surface2)}
         <div class="fd"><label>اسم الوصفة *</label><input type="text" id="nr-name" placeholder="مثال: بيئة زراعية بيتموس + برلايت"></div>
         <div class="fd">
           <label>الصنف الناتج *</label>
-          <select id="nr-output" onchange="onNewRecipeOutputChange()"><option value="">-- اختر صنف مصنّع --</option></select>
+          <select id="nr-output" onchange="onNewRecipeOutputChange()"><option value="">-- اختر صنف تصنيع --</option></select>
         </div>
         <div class="fd"><label>كمية الناتج لكل تشغيلة *</label><input type="number" id="nr-outqty" min="0.01" step="0.01" placeholder="0"></div>
       </div>
@@ -669,7 +669,7 @@ tbody tr:hover td{background:var(--surface2)}
       <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;gap:12px;align-items:end">
         <div class="fd"><label>اسم المنتج *</label><input type="text" id="sp-name" placeholder="مثال: أرز بسمتي"></div>
         <div class="fd"><label>الفئة *</label><input type="text" id="sp-cat" placeholder="مثال: حبوب"></div>
-        <div class="fd"><label>النوع</label><select id="sp-type"><option value="خام">خام</option><option value="مصنّع">مصنّع</option></select></div>
+        <div class="fd"><label>النوع</label><select id="sp-type"><option value="خام">خام</option><option value="تصنيع">تصنيع</option></select></div>
         <div class="fd"><label>الوحدة *</label><input type="text" id="sp-unit" placeholder="كيس، كرتون..."></div>
         <div class="fd"><label>الحد الأدنى</label><input type="number" id="sp-min" placeholder="5" min="0"></div>
         <div><button class="btn pri" onclick="addSrcProd()" style="height:38px;padding:0 16px"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة</button></div>
@@ -768,7 +768,7 @@ function handle(e){
             pss.getRange(r+1,5).setValue(newQ);
             var usedBatches=[];
             var itemType=String(pvals[r][6]||"خام");
-            if(itemType==="مصنّع"){
+            if(itemType==="تصنيع"){
               if(!batchSheetForConsume)batchSheetForConsume=goc(ss,"دفعات",["كود الدفعة","المنتج","الكمية الأصلية","الكمية المتبقية","تاريخ الإنتاج","المصدر","بواسطة","ملاحظة"]);
               var bvalsC=batchSheetForConsume.getDataRange().getValues();
               var rowsForProd=[];
@@ -890,7 +890,7 @@ function out(obj){return ContentService.createTextOutput(JSON.stringify(obj)).se
       <div class="fd"><label>كود الصنف (تلقائي)</label><input type="text" id="p-id" readonly></div>
       <div class="fd"><label>اسم الصنف *</label><input type="text" id="p-name" placeholder="مثال: أرز بسمتي"></div>
       <div class="fd"><label>الفئة *</label><input type="text" id="p-cat" placeholder="مثال: مواد غذائية"></div>
-      <div class="fd"><label>النوع</label><select id="p-type"><option value="خام">خام</option><option value="مصنّع">مصنّع</option></select></div>
+      <div class="fd"><label>النوع</label><select id="p-type"><option value="خام">خام</option><option value="تصنيع">تصنيع</option></select></div>
       <div class="fd"><label>وحدة القياس *</label><input type="text" id="p-unit" placeholder="كيس، كرتون، قطعة..."></div>
       <div class="fd"><label>الكمية الابتدائية</label><input type="number" id="p-qty" placeholder="0" min="0"></div>
       <div class="fd"><label>الحد الأدنى للتنبيه</label><input type="number" id="p-min" placeholder="5" min="0"></div>
@@ -1128,7 +1128,7 @@ function checkAlertBanner(){
 ══════════════════════════════════════════════ */
 function getS(p){if(p.qty<=0)return'out';if(p.qty<=p.minQty)return'low';return'ok'}
 function pill(p){const s=getS(p),L={ok:'متوفر',low:'منخفض',out:'نفذ'};return`<span class="pill ${s}"><span class="pill-dot"></span>${L[s]}</span>`}
-function typeTag(t){return t==='مصنّع'?'<span class="ttag mfg">مصنّع</span>':'<span class="ttag raw">خام</span>'}
+function typeTag(t){return t==='تصنيع'?'<span class="ttag mfg">تصنيع</span>':'<span class="ttag raw">خام</span>'}
 function dIco(t){
   if(t==='وارد')return'<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>';
   if(t==='مرتجع')return'<polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/>';
@@ -1177,7 +1177,7 @@ function renderInv(){
     <td style="color:var(--text2)">${fmt(p.minQty)} ${p.unit}</td>
     <td>${pill(p)}</td>
     <td style="display:flex;gap:4px">
-      ${p.type==='مصنّع'?`<button class="ibtn" title="عرض الدفعات" onclick="viewProductBatches('${p.name.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v10l7 5"/></svg></button>`:''}
+      ${p.type==='تصنيع'?`<button class="ibtn" title="عرض الدفعات" onclick="viewProductBatches('${p.name.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v10l7 5"/></svg></button>`:''}
       <button class="ibtn del" onclick="delProduct(${p.row},'${p.name.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>
     </td>
   </tr>`).join('');
@@ -1498,7 +1498,7 @@ function filterProdDrop(q){
   if(!list.length){
     drop.innerHTML='<div class="prod-item no-res">لا توجد نتائج</div>';
   }else{
-    drop.innerHTML=list.slice(0,12).map(p=>`<div class="prod-item" onmousedown="selectProduct('${p.name.replace(/'/g,"\\'")}')"><span class="prod-item-name">${p.name} ${p.type==='مصنّع'?'🏭':''}</span><span class="prod-item-sub">${p.id?p.id+' · ':''}${p.category} · ${fmt(p.qty)} ${p.unit}</span></div>`).join('');
+    drop.innerHTML=list.slice(0,12).map(p=>`<div class="prod-item" onmousedown="selectProduct('${p.name.replace(/'/g,"\\'")}')"><span class="prod-item-name">${p.name} ${p.type==='تصنيع'?'🏭':''}</span><span class="prod-item-sub">${p.id?p.id+' · ':''}${p.category} · ${fmt(p.qty)} ${p.unit}</span></div>`).join('');
   }
   drop.style.display='block';
 }
@@ -1522,7 +1522,7 @@ function renderBatchPicker(){
   const wrap=document.getElementById('batch-pick-wrap');
   const box=document.getElementById('batch-picker');
   const p=selectedProduct;
-  if(!p||p.type!=='مصنّع'||movType!=='out'){wrap.style.display='none';return}
+  if(!p||p.type!=='تصنيع'||movType!=='out'){wrap.style.display='none';return}
   const list=batches.filter(b=>b.product===p.name&&b.remaining>0).sort((a,b)=>a.date<b.date?-1:1);
   wrap.style.display='block';
   if(!list.length){box.innerHTML='<div class="no-batches">لا توجد دفعات متاحة لهذا الصنف حالياً</div>';selectedBatchCode=null;return}
@@ -1566,7 +1566,7 @@ function checkWarn(){
   si.className='sinfo show';
   document.getElementById('scur').textContent=fmt(p.qty)+' '+p.unit;
   document.getElementById('smin').textContent=fmt(p.minQty)+' '+p.unit;
-  if(movType==='out'&&p.type==='مصنّع'){
+  if(movType==='out'&&p.type==='تصنيع'){
     const b=batches.find(x=>x.code===selectedBatchCode);
     if(qty>0&&(!b||qty>b.remaining)){eb.className='ebox show';document.getElementById('ebox-txt').textContent=b?`الكمية أكبر من المتبقي في الدفعة (${fmt(b.remaining)} ${p.unit})`:'اختر دفعة أولاً';}
     return;
@@ -1593,8 +1593,8 @@ async function submitMov(){
   if(movType==='out'&&!dest){toast('اختر الوجهة للصادر','err');return}
   if(!hasScript()){toast('افتح الإعدادات وأكمل الربط أولاً','err');return}
 
-  // منتج مصنّع + صرف = لازم دفعة
-  if(movType==='out'&&p.type==='مصنّع'){
+  // منتج تصنيع + صرف = لازم دفعة
+  if(movType==='out'&&p.type==='تصنيع'){
     if(!selectedBatchCode){toast('اختر دفعة للصرف منها','err');return}
     const b=batches.find(x=>x.code===selectedBatchCode);
     if(!b||qty>b.remaining){toast('الكمية أكبر من المتبقي في الدفعة','err');return}
@@ -1660,11 +1660,11 @@ function todayStr(){return ymd(new Date())}
 function populateRecipeSelects(){
   const rsel=document.getElementById('pr-recipe');
   if(rsel)rsel.innerHTML='<option value="">-- اختر الوصفة --</option>'+recipes.map(r=>`<option value="${r.id}">${r.name} → ${r.outputProduct}</option>`).join('');
-  const mfgProducts=products.filter(p=>p.type==='مصنّع');
+  const mfgProducts=products.filter(p=>p.type==='تصنيع');
   const fsel=document.getElementById('pf-output');
   if(fsel)fsel.innerHTML='<option value="">-- اختر الصنف المصنّع --</option>'+mfgProducts.map(p=>`<option value="${p.name}">${p.name}</option>`).join('');
   const nsel=document.getElementById('nr-output');
-  if(nsel)nsel.innerHTML='<option value="">-- اختر صنف مصنّع --</option>'+mfgProducts.map(p=>`<option value="${p.name}">${p.name}</option>`).join('');
+  if(nsel)nsel.innerHTML='<option value="">-- اختر صنف تصنيع --</option>'+mfgProducts.map(p=>`<option value="${p.name}">${p.name}</option>`).join('');
   const bf=document.getElementById('batch-prod-filt');
   if(bf){const cur=bf.value;bf.innerHTML='<option value="">كل الأصناف المصنّعة</option>'+mfgProducts.map(p=>`<option value="${p.name}"${p.name===cur?' selected':''}>${p.name}</option>`).join('');}
   ['pr-date','pf-date'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=todayStr();});
@@ -1746,7 +1746,7 @@ function addFreeIngRow(){
   const div=document.createElement('div');
   div.className='ing-row';
   div.innerHTML=`
-    <div class="fd"><label>الخامة</label><select class="pf-ing-name">${'<option value="">-- اختر --</option>'+products.filter(p=>p.type==='خام'||p.type==='مصنّع').map(p=>`<option value="${p.name}">${p.name} (${fmt(p.qty)} ${p.unit})</option>`).join('')}</select></div>
+    <div class="fd"><label>الخامة</label><select class="pf-ing-name">${'<option value="">-- اختر --</option>'+products.filter(p=>p.type==='خام'||p.type==='تصنيع').map(p=>`<option value="${p.name}">${p.name} (${fmt(p.qty)} ${p.unit})</option>`).join('')}</select></div>
     <div class="fd"><label>الكمية</label><input type="number" class="pf-ing-qty" min="0.01" step="0.01" placeholder="0"></div>
     <div class="fd"><label>الوحدة</label><input type="text" class="pf-ing-unit" readonly placeholder="تلقائي"></div>
     <button class="ibtn del" onclick="this.parentElement.remove()" title="حذف"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
@@ -1795,7 +1795,7 @@ function addNewRecipeIngRow(){
   const div=document.createElement('div');
   div.className='ing-row';
   div.innerHTML=`
-    <div class="fd"><label>المكوّن (خامة)</label><select class="nr-ing-name">${'<option value="">-- اختر --</option>'+products.filter(p=>p.type==='خام'||p.type==='مصنّع').map(p=>`<option value="${p.name}">${p.name}</option>`).join('')}</select></div>
+    <div class="fd"><label>المكوّن (خامة)</label><select class="nr-ing-name">${'<option value="">-- اختر --</option>'+products.filter(p=>p.type==='خام'||p.type==='تصنيع').map(p=>`<option value="${p.name}">${p.name}</option>`).join('')}</select></div>
     <div class="fd"><label>الكمية لكل تشغيلة</label><input type="number" class="nr-ing-qty" min="0.01" step="0.01" placeholder="0"></div>
     <div class="fd"><label>الوحدة</label><input type="text" class="nr-ing-unit" readonly placeholder="تلقائي"></div>
     <button class="ibtn del" onclick="this.parentElement.remove()" title="حذف"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
