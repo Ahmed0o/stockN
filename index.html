@@ -259,6 +259,7 @@ tbody tr:hover td{background:var(--surface2)}
 .prod-item-sub{font-size:11px;color:var(--text3)}
 .prod-item.no-res{color:var(--text3);cursor:default;font-style:italic}
 .prod-item.no-res:hover{background:none}
+.ss-drop{position:absolute;top:100%;right:0;left:0;background:var(--surface);border:.5px solid var(--border-md);border-radius:var(--r);box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:50;max-height:220px;overflow-y:auto;margin-top:2px}
 
 @media(max-width:900px){
   nav{width:100%;height:56px;bottom:auto;top:0;flex-direction:row;border-left:none;border-bottom:.5px solid var(--border);overflow:hidden}
@@ -507,9 +508,11 @@ tbody tr:hover td{background:var(--surface2)}
     <div id="prod-recipe-box" class="mform">
       <h3>تصنيع بوصفة</h3>
       <div class="mgrid" style="grid-template-columns:2fr 1fr 1fr">
-        <div class="fd">
+        <div class="fd" style="position:relative">
           <label>الوصفة</label>
-          <select id="pr-recipe" onchange="onRecipeChange()"><option value="">-- اختر الوصفة --</option></select>
+          <input type="text" id="pr-recipe-search" placeholder="ابحث عن وصفة..." autocomplete="off"
+            oninput="ssFilter('pr-recipe',this.value)" onfocus="ssShow('pr-recipe')" onblur="setTimeout(()=>ssHide('pr-recipe'),200)">
+          <div id="pr-recipe-drop" class="ss-drop" style="display:none"></div>
         </div>
         <div class="fd"><label>الكمية الناتجة المطلوبة</label><input type="number" id="pr-qty" min="0.01" step="0.01" placeholder="0" oninput="renderRecipePreview()"></div>
         <div class="fd"><label>الوحدة</label><input type="text" id="pr-unit" readonly placeholder="تلقائي"></div>
@@ -528,9 +531,11 @@ tbody tr:hover td{background:var(--surface2)}
       <h3>تصنيع حر (بدون وصفة)</h3>
       <p style="font-size:12px;color:var(--text2);margin-bottom:14px">حدد الصنف الناتج (لازم يكون من نوع "تصنيع") والكمية، ثم أضف الخامات المستهلكة وكمياتها.</p>
       <div class="mgrid" style="grid-template-columns:2fr 1fr 1fr">
-        <div class="fd">
+        <div class="fd" style="position:relative">
           <label>الصنف الناتج</label>
-          <select id="pf-output" onchange="onFreeOutputChange()"><option value="">-- اختر الصنف المصنّع --</option></select>
+          <input type="text" id="pf-output-search" placeholder="ابحث عن صنف تصنيع..." autocomplete="off"
+            oninput="ssFilter('pf-output',this.value)" onfocus="ssShow('pf-output')" onblur="setTimeout(()=>ssHide('pf-output'),200)">
+          <div id="pf-output-drop" class="ss-drop" style="display:none"></div>
         </div>
         <div class="fd"><label>الكمية الناتجة</label><input type="number" id="pf-qty" min="0.01" step="0.01" placeholder="0"></div>
         <div class="fd"><label>الوحدة</label><input type="text" id="pf-unit" readonly placeholder="تلقائي"></div>
@@ -555,9 +560,11 @@ tbody tr:hover td{background:var(--surface2)}
       <h3>إضافة وصفة جديدة</h3>
       <div class="mgrid" style="grid-template-columns:2fr 1fr 1fr">
         <div class="fd"><label>اسم الوصفة *</label><input type="text" id="nr-name" placeholder="مثال: بيئة زراعية بيتموس + برلايت"></div>
-        <div class="fd">
+        <div class="fd" style="position:relative">
           <label>الصنف الناتج *</label>
-          <select id="nr-output" onchange="onNewRecipeOutputChange()"><option value="">-- اختر صنف تصنيع --</option></select>
+          <input type="text" id="nr-output-search" placeholder="ابحث عن صنف تصنيع..." autocomplete="off"
+            oninput="ssFilter('nr-output',this.value)" onfocus="ssShow('nr-output')" onblur="setTimeout(()=>ssHide('nr-output'),200)">
+          <div id="nr-output-drop" class="ss-drop" style="display:none"></div>
         </div>
         <div class="fd"><label>كمية الناتج لكل تشغيلة *</label><input type="number" id="nr-outqty" min="0.01" step="0.01" placeholder="0"></div>
       </div>
@@ -574,7 +581,11 @@ tbody tr:hover td{background:var(--surface2)}
   <!-- ── الدفعات ── -->
   <div id="pstab-batches" class="pstab-panel">
     <div class="toolbar">
-      <select class="filt" id="batch-prod-filt" onchange="renderBatches()"><option value="">كل الأصناف المصنّعة</option></select>
+      <div style="position:relative;min-width:260px">
+        <input type="text" id="batch-prod-filt-search" class="filt" placeholder="كل أصناف التصنيع (اكتب للبحث)" autocomplete="off"
+          oninput="ssFilter('batch-prod-filt',this.value)" onfocus="ssShow('batch-prod-filt')" onblur="setTimeout(()=>ssHide('batch-prod-filt'),200)" style="width:100%">
+        <div id="batch-prod-filt-drop" class="ss-drop" style="display:none"></div>
+      </div>
     </div>
     <div class="tc">
       <table>
@@ -719,14 +730,14 @@ function handle(e){
   try{
     var ss=SpreadsheetApp.getActiveSpreadsheet(),p=e.parameter,a=p.action,b={};
     if(e.postData)b=JSON.parse(e.postData.contents);
-    if(a==="getProducts"){var s=goc(ss,"مخزون",["Product ID","Product Name","Category","UOM","Quantity","Min Qty","Type"]);return out({ok:true,data:s.getDataRange().getValues()});}
-    if(a==="getMovements"){var s=goc(ss,"حركات",["الصنف","النوع","الكمية","الرصيد بعده","الوحدة","الدفعة","الوجهة","ملاحظة","بواسطة","التاريخ"]);return out({ok:true,data:s.getDataRange().getValues()});}
-    if(a==="getDestinations"){var s=goc(ss,"وجهات",["الوجهة"]);return out({ok:true,data:s.getDataRange().getValues()});}
-    if(a==="getLog"){var s=goc(ss,"سجل",["الوقت","المستخدم","النوع","التفاصيل","الكمية","الوجهة","ملاحظة"]);return out({ok:true,data:s.getDataRange().getValues()});}
-    if(a==="getUsers"){var s=goc(ss,"مستخدمين",["الاسم","كلمة السر","الصلاحية"]);return out({ok:true,data:s.getDataRange().getValues()});}
-    if(a==="getRecipes"){var s=goc(ss,"وصفات",["المعرف","اسم الوصفة","المنتج الناتج","كمية الناتج","الوحدة"]);return out({ok:true,data:s.getDataRange().getValues()});}
-    if(a==="getRecipeIngredients"){var s=goc(ss,"مكونات الوصفة",["معرف الوصفة","اسم الوصفة","المكون","الكمية","الوحدة"]);return out({ok:true,data:s.getDataRange().getValues()});}
-    if(a==="getBatches"){var s=goc(ss,"دفعات",["كود الدفعة","المنتج","الكمية الأصلية","الكمية المتبقية","تاريخ الإنتاج","المصدر","بواسطة","ملاحظة"]);return out({ok:true,data:s.getDataRange().getValues()});}
+    if(a==="getProducts"){var s=goc(ss,"مخزون",["Product ID","Product Name","Category","UOM","Quantity","Min Qty","Type"]);return out({ok:true,data:cleanRows(s.getDataRange().getValues())});}
+    if(a==="getMovements"){var s=goc(ss,"حركات",["الصنف","النوع","الكمية","الرصيد بعده","الوحدة","الدفعة","الوجهة","ملاحظة","بواسطة","التاريخ"]);return out({ok:true,data:cleanRows(s.getDataRange().getValues())});}
+    if(a==="getDestinations"){var s=goc(ss,"وجهات",["الوجهة"]);return out({ok:true,data:cleanRows(s.getDataRange().getValues())});}
+    if(a==="getLog"){var s=goc(ss,"سجل",["الوقت","المستخدم","النوع","التفاصيل","الكمية","الوجهة","ملاحظة"]);return out({ok:true,data:cleanRows(s.getDataRange().getValues())});}
+    if(a==="getUsers"){var s=goc(ss,"مستخدمين",["الاسم","كلمة السر","الصلاحية"]);return out({ok:true,data:cleanRows(s.getDataRange().getValues())});}
+    if(a==="getRecipes"){var s=goc(ss,"وصفات",["المعرف","اسم الوصفة","المنتج الناتج","كمية الناتج","الوحدة"]);return out({ok:true,data:cleanRows(s.getDataRange().getValues())});}
+    if(a==="getRecipeIngredients"){var s=goc(ss,"مكونات الوصفة",["معرف الوصفة","اسم الوصفة","المكون","الكمية","الوحدة"]);return out({ok:true,data:cleanRows(s.getDataRange().getValues())});}
+    if(a==="getBatches"){var s=goc(ss,"دفعات",["كود الدفعة","المنتج","الكمية الأصلية","الكمية المتبقية","تاريخ الإنتاج","المصدر","بواسطة","ملاحظة"]);return out({ok:true,data:cleanRows(s.getDataRange().getValues())});}
     if(a==="addProduct"){var s=goc(ss,"مخزون",["Product ID","Product Name","Category","UOM","Quantity","Min Qty","Type"]);s.appendRow([b.id||"",b.name,b.category,b.unit,b.qty,b.minQty,b.type||"خام"]);addLog(ss,"إضافة صنف",b.user,b.name,b.qty,"","");return out({ok:true});}
     if(a==="addMovement"){var s=goc(ss,"حركات",["الصنف","النوع","الكمية","الرصيد بعده","الوحدة","الدفعة","الوجهة","ملاحظة","بواسطة","التاريخ"]);s.appendRow([b.product,b.type,b.qty,b.balance,b.unit,b.batch||"",b.dest||"",b.note||"",b.user||"",b.date]);addLog(ss,"حركة "+b.type,b.user||"",b.product,b.qty,b.dest||"",b.note||"");return out({ok:true});}
     if(a==="addDestination"){var s=goc(ss,"وجهات",["الوجهة"]);s.appendRow([b.name]);return out({ok:true});}
@@ -831,6 +842,16 @@ function handle(e){
     }
     return out({ok:false,error:"unknown"});
   }catch(err){return out({ok:false,error:err.toString()})}
+}
+function cleanRows(rows){
+  return rows.map(function(row){
+    return row.map(function(cell){
+      if(cell instanceof Date){
+        return Utilities.formatDate(cell,Session.getScriptTimeZone(),"yyyy-MM-dd");
+      }
+      return cell;
+    });
+  });
 }
 function goc(ss,name,headers){var s=ss.getSheetByName(name);if(!s){s=ss.insertSheet(name);s.appendRow(headers);}return s;}
 function addLog(ss,type,user,detail,qty,dest,note){var s=goc(ss,"سجل",["الوقت","المستخدم","النوع","التفاصيل","الكمية","الوجهة","ملاحظة"]);var now=new Date();var ts=Utilities.formatDate(now,Session.getScriptTimeZone(),"yyyy-MM-dd HH:mm");s.appendRow([ts,user,type,detail,qty||"",dest||"",note||""]);}
@@ -1186,8 +1207,7 @@ function renderInv(){
 function viewProductBatches(name){
   showPage('production',document.querySelector('.na[onclick*=production]'));
   switchPTab('batches',document.querySelectorAll('.pstab')[2]);
-  const sel=document.getElementById('batch-prod-filt');
-  if(sel)sel.value=name;
+  ssSetValue('batch-prod-filt',name,name);
   renderBatches();
 }
 
@@ -1535,6 +1555,61 @@ function renderBatchPicker(){
 }
 function pickBatch(code){selectedBatchCode=code;renderBatchPicker();checkWarn();}
 
+/* ══════════════════════════════════════════════
+   GENERIC SEARCHABLE-SELECT (ss*) — search input + dropdown list,
+   same pattern as the product search on the Movement page, reused
+   across the Production page (recipes, output product, ingredients, batch filter)
+══════════════════════════════════════════════ */
+const ssState={};
+function ssRegister(fieldId,optionsFn,onChange){
+  if(!ssState[fieldId])ssState[fieldId]={value:'',optionsFn,onChange};
+  else{ssState[fieldId].optionsFn=optionsFn;ssState[fieldId].onChange=onChange;}
+}
+function ssUnregister(fieldId){delete ssState[fieldId];}
+function ssShow(fieldId){const inp=document.getElementById(fieldId+'-search');ssFilter(fieldId,inp?inp.value:'');}
+function ssHide(fieldId){const d=document.getElementById(fieldId+'-drop');if(d)d.style.display='none';}
+function ssFilter(fieldId,q){
+  const st=ssState[fieldId];if(!st)return;
+  const drop=document.getElementById(fieldId+'-drop');if(!drop)return;
+  const all=st.optionsFn()||[];
+  const qq=(q||'').trim();
+  const list=qq?all.filter(o=>o.label.includes(qq)||(o.sub&&o.sub.includes(qq))):all;
+  if(!list.length){
+    drop.innerHTML='<div class="prod-item no-res">لا توجد نتائج</div>';
+  }else{
+    drop.innerHTML=list.slice(0,12).map(o=>`<div class="prod-item" onmousedown="ssSelect('${fieldId}','${String(o.value).replace(/'/g,"\\'")}')"><span class="prod-item-name">${o.label}</span>${o.sub?`<span class="prod-item-sub">${o.sub}</span>`:''}</div>`).join('');
+  }
+  drop.style.display='block';
+}
+function ssSelect(fieldId,value){
+  const st=ssState[fieldId];if(!st)return;
+  st.value=value;
+  const found=(st.optionsFn()||[]).find(o=>String(o.value)===String(value));
+  const inp=document.getElementById(fieldId+'-search');
+  if(inp)inp.value=found?found.label:value;
+  ssHide(fieldId);
+  if(st.onChange)st.onChange(value);
+}
+function ssGetValue(fieldId){return ssState[fieldId]?ssState[fieldId].value:'';}
+function ssSetValue(fieldId,value,label){
+  if(!ssState[fieldId])ssState[fieldId]={value:'',optionsFn:()=>[],onChange:null};
+  ssState[fieldId].value=value;
+  const inp=document.getElementById(fieldId+'-search');
+  if(inp)inp.value=label!=null?label:value;
+}
+function ssClear(fieldId){
+  if(ssState[fieldId])ssState[fieldId].value='';
+  const inp=document.getElementById(fieldId+'-search');
+  if(inp)inp.value='';
+}
+function ssRefreshLabel(fieldId){
+  const st=ssState[fieldId];if(!st||!st.value)return;
+  const found=(st.optionsFn()||[]).find(o=>String(o.value)===String(st.value));
+  const inp=document.getElementById(fieldId+'-search');
+  if(!found){st.value='';if(inp)inp.value='';}
+  else if(inp)inp.value=found.label;
+}
+
 function onProdSel(){/* kept for compatibility */}
 function getSelectedProduct(){return selectedProduct;}
 
@@ -1658,28 +1733,40 @@ function genBatchCode(productName){
 function todayStr(){return ymd(new Date())}
 
 function populateRecipeSelects(){
-  const rsel=document.getElementById('pr-recipe');
-  if(rsel)rsel.innerHTML='<option value="">-- اختر الوصفة --</option>'+recipes.map(r=>`<option value="${r.id}">${r.name} → ${r.outputProduct}</option>`).join('');
-  const mfgProducts=products.filter(p=>p.type==='تصنيع');
-  const fsel=document.getElementById('pf-output');
-  if(fsel)fsel.innerHTML='<option value="">-- اختر الصنف المصنّع --</option>'+mfgProducts.map(p=>`<option value="${p.name}">${p.name}</option>`).join('');
-  const nsel=document.getElementById('nr-output');
-  if(nsel)nsel.innerHTML='<option value="">-- اختر صنف تصنيع --</option>'+mfgProducts.map(p=>`<option value="${p.name}">${p.name}</option>`).join('');
-  const bf=document.getElementById('batch-prod-filt');
-  if(bf){const cur=bf.value;bf.innerHTML='<option value="">كل الأصناف المصنّعة</option>'+mfgProducts.map(p=>`<option value="${p.name}"${p.name===cur?' selected':''}>${p.name}</option>`).join('');}
+  ssRegister('pr-recipe',
+    ()=>recipes.map(r=>({value:r.id,label:r.name,sub:'→ '+r.outputProduct})),
+    ()=>onRecipeChange()
+  );
+  ssRegister('pf-output',
+    ()=>products.filter(p=>p.type==='تصنيع').map(p=>({value:p.name,label:p.name,sub:`${p.category} · ${fmt(p.qty)} ${p.unit}`})),
+    ()=>onFreeOutputChange()
+  );
+  ssRegister('nr-output',
+    ()=>products.filter(p=>p.type==='تصنيع').map(p=>({value:p.name,label:p.name,sub:`${p.category} · ${fmt(p.qty)} ${p.unit}`})),
+    ()=>onNewRecipeOutputChange()
+  );
+  ssRegister('batch-prod-filt',
+    ()=>[{value:'',label:'كل أصناف التصنيع'},...products.filter(p=>p.type==='تصنيع').map(p=>({value:p.name,label:p.name}))],
+    ()=>renderBatches()
+  );
+  ssRefreshLabel('pr-recipe');
+  ssRefreshLabel('pf-output');
+  ssRefreshLabel('nr-output');
+  if(!ssGetValue('batch-prod-filt'))ssSetValue('batch-prod-filt','','كل أصناف التصنيع');
+  else ssRefreshLabel('batch-prod-filt');
   ['pr-date','pf-date'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=todayStr();});
   if(!document.getElementById('pf-ing-rows').children.length)addFreeIngRow();
   if(!document.getElementById('nr-ing-rows').children.length)addNewRecipeIngRow();
 }
 
 function onRecipeChange(){
-  const rid=document.getElementById('pr-recipe').value;
+  const rid=ssGetValue('pr-recipe');
   const r=recipes.find(x=>x.id===rid);
   document.getElementById('pr-unit').value=r?r.outputUnit:'';
   renderRecipePreview();
 }
 function renderRecipePreview(){
-  const rid=document.getElementById('pr-recipe').value;
+  const rid=ssGetValue('pr-recipe');
   const r=recipes.find(x=>x.id===rid);
   const box=document.getElementById('pr-preview');
   const eb=document.getElementById('pr-ebox');eb.className='ebox';
@@ -1702,7 +1789,7 @@ function renderRecipePreview(){
 }
 
 async function executeRecipeProduction(){
-  const rid=document.getElementById('pr-recipe').value;
+  const rid=ssGetValue('pr-recipe');
   const r=recipes.find(x=>x.id===rid);
   const desiredQty=parseFloat(document.getElementById('pr-qty').value);
   const note=document.getElementById('pr-note').value.trim();
@@ -1736,26 +1823,35 @@ async function executeRecipeProduction(){
 }
 
 function onFreeOutputChange(){
-  const name=document.getElementById('pf-output').value;
+  const name=ssGetValue('pf-output');
   const p=findProduct(name);
   document.getElementById('pf-unit').value=p?p.unit:'';
 }
+let pfIngCounter=0;
 function addFreeIngRow(){
   const wrap=document.getElementById('pf-ing-rows');
-  const idx=wrap.children.length;
+  const fieldId='pf-ing-'+(pfIngCounter++);
   const div=document.createElement('div');
   div.className='ing-row';
+  div.dataset.field=fieldId;
   div.innerHTML=`
-    <div class="fd"><label>الخامة</label><select class="pf-ing-name">${'<option value="">-- اختر --</option>'+products.filter(p=>p.type==='خام'||p.type==='تصنيع').map(p=>`<option value="${p.name}">${p.name} (${fmt(p.qty)} ${p.unit})</option>`).join('')}</select></div>
+    <div class="fd" style="position:relative">
+      <label>الخامة</label>
+      <input type="text" id="${fieldId}-search" placeholder="ابحث عن خامة..." autocomplete="off"
+        oninput="ssFilter('${fieldId}',this.value)" onfocus="ssShow('${fieldId}')" onblur="setTimeout(()=>ssHide('${fieldId}'),200)">
+      <div id="${fieldId}-drop" class="ss-drop" style="display:none"></div>
+    </div>
     <div class="fd"><label>الكمية</label><input type="number" class="pf-ing-qty" min="0.01" step="0.01" placeholder="0"></div>
     <div class="fd"><label>الوحدة</label><input type="text" class="pf-ing-unit" readonly placeholder="تلقائي"></div>
-    <button class="ibtn del" onclick="this.parentElement.remove()" title="حذف"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+    <button class="ibtn del" onclick="ssUnregister('${fieldId}');this.parentElement.remove()" title="حذف"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
   wrap.appendChild(div);
-  const sel=div.querySelector('.pf-ing-name');
-  sel.addEventListener('change',()=>{const p=findProduct(sel.value);div.querySelector('.pf-ing-unit').value=p?p.unit:'';});
+  ssRegister(fieldId,
+    ()=>products.filter(p=>p.type==='خام'||p.type==='تصنيع').map(p=>({value:p.name,label:p.name,sub:`${fmt(p.qty)} ${p.unit} متاح`})),
+    (val)=>{const p=findProduct(val);div.querySelector('.pf-ing-unit').value=p?p.unit:'';}
+  );
 }
 async function executeFreeProduction(){
-  const outName=document.getElementById('pf-output').value;
+  const outName=ssGetValue('pf-output');
   const qty=parseFloat(document.getElementById('pf-qty').value);
   const note=document.getElementById('pf-note').value.trim();
   const date=document.getElementById('pf-date').value||todayStr();
@@ -1767,7 +1863,7 @@ async function executeFreeProduction(){
   const rows=[...document.getElementById('pf-ing-rows').children];
   const consumed=[];
   for(const row of rows){
-    const name=row.querySelector('.pf-ing-name').value;
+    const name=ssGetValue(row.dataset.field);
     const q=parseFloat(row.querySelector('.pf-ing-qty').value);
     if(!name||!q||q<=0)continue;
     const avail=findProduct(name);
@@ -1790,22 +1886,32 @@ async function executeFreeProduction(){
 
 /* ── الوصفات ── */
 function onNewRecipeOutputChange(){}
+let nrIngCounter=0;
 function addNewRecipeIngRow(){
   const wrap=document.getElementById('nr-ing-rows');
+  const fieldId='nr-ing-'+(nrIngCounter++);
   const div=document.createElement('div');
   div.className='ing-row';
+  div.dataset.field=fieldId;
   div.innerHTML=`
-    <div class="fd"><label>المكوّن (خامة)</label><select class="nr-ing-name">${'<option value="">-- اختر --</option>'+products.filter(p=>p.type==='خام'||p.type==='تصنيع').map(p=>`<option value="${p.name}">${p.name}</option>`).join('')}</select></div>
+    <div class="fd" style="position:relative">
+      <label>المكوّن (خامة)</label>
+      <input type="text" id="${fieldId}-search" placeholder="ابحث عن خامة..." autocomplete="off"
+        oninput="ssFilter('${fieldId}',this.value)" onfocus="ssShow('${fieldId}')" onblur="setTimeout(()=>ssHide('${fieldId}'),200)">
+      <div id="${fieldId}-drop" class="ss-drop" style="display:none"></div>
+    </div>
     <div class="fd"><label>الكمية لكل تشغيلة</label><input type="number" class="nr-ing-qty" min="0.01" step="0.01" placeholder="0"></div>
     <div class="fd"><label>الوحدة</label><input type="text" class="nr-ing-unit" readonly placeholder="تلقائي"></div>
-    <button class="ibtn del" onclick="this.parentElement.remove()" title="حذف"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+    <button class="ibtn del" onclick="ssUnregister('${fieldId}');this.parentElement.remove()" title="حذف"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
   wrap.appendChild(div);
-  const sel=div.querySelector('.nr-ing-name');
-  sel.addEventListener('change',()=>{const p=findProduct(sel.value);div.querySelector('.nr-ing-unit').value=p?p.unit:'';});
+  ssRegister(fieldId,
+    ()=>products.filter(p=>p.type==='خام'||p.type==='تصنيع').map(p=>({value:p.name,label:p.name,sub:`${fmt(p.qty)} ${p.unit} متاح`})),
+    (val)=>{const p=findProduct(val);div.querySelector('.nr-ing-unit').value=p?p.unit:'';}
+  );
 }
 async function saveRecipe(){
   const name=document.getElementById('nr-name').value.trim();
-  const outName=document.getElementById('nr-output').value;
+  const outName=ssGetValue('nr-output');
   const outQty=parseFloat(document.getElementById('nr-outqty').value);
   const outProduct=findProduct(outName);
   if(!name||!outProduct||!outQty||outQty<=0){toast('أكمل اسم الوصفة والصنف الناتج وكمية الناتج','err');return}
@@ -1813,7 +1919,7 @@ async function saveRecipe(){
   const rows=[...document.getElementById('nr-ing-rows').children];
   const ingredients=[];
   for(const row of rows){
-    const iname=row.querySelector('.nr-ing-name').value;
+    const iname=ssGetValue(row.dataset.field);
     const q=parseFloat(row.querySelector('.nr-ing-qty').value);
     if(!iname||!q||q<=0)continue;
     const p=findProduct(iname);
@@ -1823,7 +1929,7 @@ async function saveRecipe(){
   setSyncing('جارٍ الحفظ...');
   const r=await api('addRecipe',{name,outputProduct:outProduct.name,outputQty:outQty,outputUnit:outProduct.unit,ingredients,user:currentUser?.name||''});
   if(r&&r.ok){
-    document.getElementById('nr-name').value='';document.getElementById('nr-outqty').value='';
+    document.getElementById('nr-name').value='';document.getElementById('nr-outqty').value='';ssClear('nr-output');
     document.getElementById('nr-ing-rows').innerHTML='';addNewRecipeIngRow();
     await loadAll();toast('تم حفظ الوصفة ✓');
   }else{toast('فشل الحفظ','err');setSynced();}
@@ -1855,7 +1961,7 @@ async function deleteRecipe(id,name){
 function renderBatches(){
   const tbody=document.getElementById('batches-body');
   if(!tbody)return;
-  const filt=document.getElementById('batch-prod-filt')?document.getElementById('batch-prod-filt').value:'';
+  const filt=ssGetValue('batch-prod-filt');
   const list=[...batches].filter(b=>!filt||b.product===filt).reverse();
   if(!list.length){tbody.innerHTML='<tr class="er"><td colspan="7">لا توجد دفعات مسجلة بعد</td></tr>';return}
   tbody.innerHTML=list.map(b=>{
