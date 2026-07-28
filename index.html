@@ -610,7 +610,13 @@ tbody tr:hover td{background:var(--surface2)}
 
 <!-- ══ REPORTS ══ -->
 <div id="page-reports" class="page">
-  <div class="ph"><h2>التقارير</h2><p>تحليل الحركة والاستهلاك حسب الفترة</p></div>
+  <div class="ph-row">
+    <div><h2>التقارير</h2><p>تحليل الحركة والاستهلاك حسب الفترة</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="exportReportExcel()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>تحميل Excel</button>
+      <button class="btn" onclick="exportReportPDF()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="9" y2="18"/><line x1="12" y1="13" x2="12" y2="18"/><line x1="15" y1="15" x2="15" y2="18"/></svg>تحميل PDF</button>
+    </div>
+  </div>
   <div class="date-bar">
     <div class="quick-btns">
       <button class="qbtn active" onclick="setQuick('today',this)">اليوم</button>
@@ -624,6 +630,12 @@ tbody tr:hover td{background:var(--surface2)}
       <button class="btn pri" onclick="renderReports()" style="margin-top:18px"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>عرض</button>
     </div>
     <div style="margin-right:auto;font-size:12px;color:var(--text3)" id="r-period-lbl"></div>
+  </div>
+  <div class="sgrid" id="r-kpi-grid">
+    <div class="sc"><div class="sc-ico tl"><svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></div><div class="sc-num" id="r-kpi-in">--</div><div class="sc-lbl">عمليات وارد</div></div>
+    <div class="sc"><div class="sc-ico rd"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div><div class="sc-num" id="r-kpi-out">--</div><div class="sc-lbl">عمليات صادر</div></div>
+    <div class="sc"><div class="sc-ico pu"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v10l7 5"/></svg></div><div class="sc-num" id="r-kpi-mfg">--</div><div class="sc-lbl">عمليات تصنيع</div></div>
+    <div class="sc"><div class="sc-ico bl"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><div class="sc-num" id="r-kpi-products">--</div><div class="sc-lbl">أصناف متحركة</div></div>
   </div>
   <div class="report-grid">
     <div class="report-card">
@@ -644,7 +656,13 @@ tbody tr:hover td{background:var(--surface2)}
     <div id="r-dest-chart"><div class="ldr"><div class="spin"></div></div></div>
   </div>
   <div class="tc">
-    <div style="padding:16px 18px;border-bottom:.5px solid var(--border);font-size:14px;font-weight:600">تفاصيل الحركات في الفترة</div>
+    <div style="padding:16px 18px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <span style="font-size:14px;font-weight:600">تفاصيل الحركات في الفترة</span>
+      <div class="sw" style="max-width:240px;min-width:160px">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="بحث في التفاصيل..." id="r-mov-q" oninput="renderReportDetailTable()">
+      </div>
+    </div>
     <table>
       <thead><tr><th style="width:20%">الصنف</th><th style="width:9%">النوع</th><th style="width:12%">الكمية</th><th style="width:12%">الوجهة</th><th style="width:12%">بواسطة</th><th style="width:13%">ملاحظة</th><th style="width:10%">التاريخ</th></tr></thead>
       <tbody id="r-mov-body"><tr class="er"><td colspan="7">اختر فترة لعرض البيانات</td></tr></tbody>
@@ -959,6 +977,7 @@ function out(obj){return ContentService.createTextOutput(JSON.stringify(obj)).se
 
 <div id="toast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="toast-txt"></span></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 /* ══════════════════════════════════════════════
    STATE & CONFIG
@@ -1271,16 +1290,26 @@ function inRange(dateStr,from,to){
   return dateStr>=from&&dateStr<=to;
 }
 
+let currentReportRange=null,currentReportFiltered=[];
+
 function renderReports(){
   const range=getDateRange();
   if(!range){return}
+  currentReportRange=range;
   const lblEl=document.getElementById('r-period-lbl');
   if(lblEl)lblEl.textContent=range.from===range.to?range.from:range.from+' — '+range.to;
   const filtered=movements.filter(m=>inRange(m.date,range.from,range.to));
+  currentReportFiltered=filtered;
 
   const inMov=filtered.filter(m=>m.type==='وارد');
   const outMov=filtered.filter(m=>m.type==='صادر');
   const mfgMov=filtered.filter(m=>m.type==='تصنيع');
+
+  const kpiIn=document.getElementById('r-kpi-in'),kpiOut=document.getElementById('r-kpi-out'),kpiMfg=document.getElementById('r-kpi-mfg'),kpiProd=document.getElementById('r-kpi-products');
+  if(kpiIn)kpiIn.textContent=inMov.length;
+  if(kpiOut)kpiOut.textContent=outMov.length;
+  if(kpiMfg)kpiMfg.textContent=mfgMov.length;
+  if(kpiProd)kpiProd.textContent=new Set(filtered.map(m=>m.product)).size;
 
   function sumByProduct(movs){
     const map={};
@@ -1323,9 +1352,18 @@ function renderReports(){
     document.getElementById('r-dest-chart').innerHTML='<p style="color:var(--text3);font-size:13px">لا يوجد صادر للوجهات في هذه الفترة</p>';
   }
 
+  renderReportDetailTable();
+}
+
+function renderReportDetailTable(){
   const tbody=document.getElementById('r-mov-body');
-  if(!filtered.length){tbody.innerHTML='<tr class="er"><td colspan="7">لا توجد حركات في هذه الفترة</td></tr>';return}
-  tbody.innerHTML=[...filtered].reverse().map(m=>`<tr>
+  if(!tbody)return;
+  const qEl=document.getElementById('r-mov-q');
+  const q=qEl?qEl.value.trim():'';
+  const list=[...currentReportFiltered].reverse().filter(m=>!q||[m.product,m.type,m.dest,m.user,m.note].some(v=>(v||'').includes(q)));
+  if(!currentReportFiltered.length){tbody.innerHTML='<tr class="er"><td colspan="7">لا توجد حركات في هذه الفترة</td></tr>';return}
+  if(!list.length){tbody.innerHTML='<tr class="er"><td colspan="7">لا توجد نتائج مطابقة للبحث</td></tr>';return}
+  tbody.innerHTML=list.map(m=>`<tr>
     <td style="font-weight:500">${m.product}</td>
     <td><span class="mdir ${mdir(m.type)}"><svg viewBox="0 0 24 24">${dIco(m.type)}</svg>${m.type}</span></td>
     <td>${fmt(m.qty)} <span style="color:var(--text3)">${m.unit}</span></td>
@@ -1334,6 +1372,101 @@ function renderReports(){
     <td style="color:var(--text2);font-size:12px">${m.note||'—'}</td>
     <td style="color:var(--text3);font-size:11px">${m.date}</td>
   </tr>`).join('');
+}
+
+/* ══════════════════════════════════════════════
+   REPORT EXPORT — Excel (SheetJS) & PDF (print)
+══════════════════════════════════════════════ */
+function reportPeriodLabel(){
+  if(!currentReportRange)return'';
+  return currentReportRange.from===currentReportRange.to?currentReportRange.from:currentReportRange.from+'_'+currentReportRange.to;
+}
+function reportSummaryRows(){
+  const filtered=currentReportFiltered;
+  const map={};
+  filtered.forEach(m=>{
+    if(!map[m.product])map[m.product]={product:m.product,unit:m.unit,in:0,out:0,mfg:0,ret:0};
+    if(m.type==='وارد')map[m.product].in+=m.qty;
+    else if(m.type==='صادر')map[m.product].out+=m.qty;
+    else if(m.type==='تصنيع')map[m.product].mfg+=m.qty;
+    else if(m.type==='مرتجع')map[m.product].ret+=m.qty;
+  });
+  return Object.values(map).sort((a,b)=>a.product.localeCompare(b.product,'ar'));
+}
+function exportReportExcel(){
+  if(!currentReportRange){toast('اختر فترة لعرض البيانات أولاً','err');return}
+  if(typeof XLSX==='undefined'){toast('مكتبة تصدير Excel لسه بتتحمّل، جرّب تاني بعد لحظة','err');return}
+  const summary=reportSummaryRows();
+  const summarySheetData=summary.map(r=>({
+    'الصنف':r.product,'الوحدة':r.unit,'إجمالي وارد':r.in,'إجمالي صادر':r.out,
+    'إجمالي تصنيع':r.mfg,'إجمالي مرتجع':r.ret,'الصافي':r.in+r.mfg-r.out-r.ret
+  }));
+  const detailSheetData=[...currentReportFiltered].reverse().map(m=>({
+    'الصنف':m.product,'النوع':m.type,'الكمية':m.qty,'الوحدة':m.unit,
+    'الدفعة':m.batch||'','الوجهة':m.dest||'','بواسطة':m.user||'','ملاحظة':m.note||'','التاريخ':m.date
+  }));
+  const wb=XLSX.utils.book_new();
+  const ws1=XLSX.utils.json_to_sheet(summarySheetData.length?summarySheetData:[{'الصنف':'لا توجد بيانات'}]);
+  const ws2=XLSX.utils.json_to_sheet(detailSheetData.length?detailSheetData:[{'الصنف':'لا توجد بيانات'}]);
+  XLSX.utils.book_append_sheet(wb,ws1,'الملخص');
+  XLSX.utils.book_append_sheet(wb,ws2,'تفاصيل الحركات');
+  XLSX.writeFile(wb,`تقرير_${reportPeriodLabel()}.xlsx`);
+  toast('جارٍ تحميل ملف Excel...');
+}
+function exportReportPDF(){
+  if(!currentReportRange){toast('اختر فترة لعرض البيانات أولاً','err');return}
+  const summary=reportSummaryRows();
+  const list=[...currentReportFiltered].reverse();
+  const period=currentReportRange.from===currentReportRange.to?currentReportRange.from:currentReportRange.from+' — '+currentReportRange.to;
+  const now=new Date();
+  const genStamp=ymd(now)+' '+now.toTimeString().slice(0,5);
+  const kpiIn=list.filter(m=>m.type==='وارد').length,kpiOut=list.filter(m=>m.type==='صادر').length,kpiMfg=list.filter(m=>m.type==='تصنيع').length;
+
+  const summaryRowsHtml=summary.length?summary.map(r=>`<tr>
+      <td>${r.product}</td><td>${r.unit}</td><td>${fmt(r.in)}</td><td>${fmt(r.out)}</td><td>${fmt(r.mfg)}</td><td>${fmt(r.in+r.mfg-r.out-r.ret)}</td>
+    </tr>`).join(''):'<tr><td colspan="6" style="text-align:center;color:#999">لا توجد بيانات</td></tr>';
+
+  const detailRowsHtml=list.length?list.map(m=>`<tr>
+      <td>${m.product}</td><td>${m.type}</td><td>${fmt(m.qty)} ${m.unit}</td><td>${m.dest||'—'}</td><td>${m.user||'—'}</td><td>${m.note||'—'}</td><td>${m.date}</td>
+    </tr>`).join(''):'<tr><td colspan="7" style="text-align:center;color:#999">لا توجد بيانات</td></tr>';
+
+  const html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>تقرير المخزون — ${period}</title>
+  <style>
+    *{box-sizing:border-box;font-family:'Segoe UI',Tahoma,Arial,sans-serif}
+    body{margin:0;padding:28px;color:#1A1A1A}
+    h1{font-size:20px;margin:0 0 4px}
+    .sub{color:#6B6B6B;font-size:12px;margin-bottom:18px}
+    .kpis{display:flex;gap:12px;margin-bottom:22px}
+    .kpi{flex:1;border:1px solid #e5e3de;border-radius:10px;padding:12px 14px}
+    .kpi b{display:block;font-size:20px}
+    .kpi span{font-size:11px;color:#6B6B6B}
+    h2{font-size:14px;margin:22px 0 8px;border-right:3px solid #0F6E56;padding-right:8px}
+    table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:10px}
+    th,td{border:1px solid #e5e3de;padding:6px 8px;text-align:right}
+    th{background:#F1F0ED;font-weight:600}
+    @media print{body{padding:10mm}}
+  </style></head><body>
+    <h1>تقرير حركة المخزون والتصنيع</h1>
+    <div class="sub">الفترة: ${period} &nbsp;·&nbsp; تم الإنشاء: ${genStamp}</div>
+    <div class="kpis">
+      <div class="kpi"><b>${kpiIn}</b><span>عمليات وارد</span></div>
+      <div class="kpi"><b>${kpiOut}</b><span>عمليات صادر</span></div>
+      <div class="kpi"><b>${kpiMfg}</b><span>عمليات تصنيع</span></div>
+      <div class="kpi"><b>${new Set(list.map(m=>m.product)).size}</b><span>أصناف متحركة</span></div>
+    </div>
+    <h2>ملخص حسب الصنف</h2>
+    <table><thead><tr><th>الصنف</th><th>الوحدة</th><th>إجمالي وارد</th><th>إجمالي صادر</th><th>إجمالي تصنيع</th><th>الصافي</th></tr></thead><tbody>${summaryRowsHtml}</tbody></table>
+    <h2>تفاصيل الحركات</h2>
+    <table><thead><tr><th>الصنف</th><th>النوع</th><th>الكمية</th><th>الوجهة</th><th>بواسطة</th><th>ملاحظة</th><th>التاريخ</th></tr></thead><tbody>${detailRowsHtml}</tbody></table>
+  </body></html>`;
+
+  const win=window.open('','_blank');
+  if(!win){toast('المتصفح منع فتح نافذة الطباعة — اسمح بالنوافذ المنبثقة لهذا الموقع','err');return}
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  win.onload=()=>{win.focus();win.print();};
+  setTimeout(()=>{try{win.focus();win.print();}catch(e){}},600);
 }
 
 /* ══════════════════════════════════════════════
