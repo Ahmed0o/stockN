@@ -700,6 +700,10 @@ tbody tr:hover td{background:var(--surface2)}
         <div class="fd"><label>اسم المنتج *</label><input type="text" id="sp-name" placeholder="مثال: أرز بسمتي"></div>
         <div class="fd"><label>الفئة *</label><input type="text" id="sp-cat" placeholder="مثال: حبوب"></div>
         <div class="fd"><label>النوع</label><select id="sp-type"><option value="خام">خام</option><option value="تصنيع">تصنيع</option></select></div>
+        <div class="fd" id="sp-plantable-wrap" style="display:none">
+          <label>قابل للزراعة</label>
+          <select id="sp-plantable"><option value="لا">لا</option><option value="نعم">نعم</option></select>
+        </div>
         <div class="fd"><label>الوحدة *</label><input type="text" id="sp-unit" placeholder="كيس، كرتون..."></div>
         <div class="fd"><label>الحد الأدنى</label><input type="number" id="sp-min" placeholder="5" min="0"></div>
         <div><button class="btn pri" onclick="addSrcProd()" style="height:38px;padding:0 16px"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>إضافة</button></div>
