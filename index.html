@@ -765,13 +765,13 @@ function handle(e){
       var pss=ss.getSheetByName("مخزون");
       var pvals=pss?pss.getDataRange().getValues():[];
       var plantableSet={};
-      for(var i=1;i<pvals.length;i++){ if(String(pvals[i][7]||"لا")==="نعم") plantableSet[pvals[i][1]]=true; }
+      for(var i=1;i&lt;pvals.length;i++){ if(String(pvals[i][7]||"لا")==="نعم") plantableSet[pvals[i][1]]=true; }
       var bs=goc(ss,"دفعات",["كود الدفعة","المنتج","الكمية الأصلية","الكمية المتبقية","تاريخ الإنتاج","المصدر","بواسطة","ملاحظة"]);
       var bvals=bs.getDataRange().getValues();
       var result=[];
-      for(var j=1;j<bvals.length;j++){
+      for(var j=1;j&lt;bvals.length;j++){
         var remain=parseFloat(bvals[j][3])||0;
-        if(remain>0 && plantableSet[bvals[j][1]]){
+        if(remain&gt;0 && plantableSet[bvals[j][1]]){
           result.push({code:bvals[j][0],product:bvals[j][1],remaining:remain,date:String(bvals[j][4]),source:bvals[j][5]});
         }
       }
@@ -781,19 +781,19 @@ function handle(e){
       var bs2=ss.getSheetByName("دفعات");
       var bvals2=bs2.getDataRange().getValues();
       var brow=-1,bremain=0;
-      for(var k=1;k<bvals2.length;k++){ if(bvals2[k][0]===b.batchCode){brow=k+1;bremain=parseFloat(bvals2[k][3])||0;break;} }
-      if(brow<0) return out({ok:false,error:"batch_not_found"});
+      for(var k=1;k&lt;bvals2.length;k++){ if(bvals2[k][0]===b.batchCode){brow=k+1;bremain=parseFloat(bvals2[k][3])||0;break;} }
+      if(brow&lt;0) return out({ok:false,error:"batch_not_found"});
       var totalQty=0;
       (b.assignments||[]).forEach(function(x){totalQty+=parseFloat(x.qty)||0;});
-      if(totalQty<=0) return out({ok:false,error:"empty_plan"});
-      if(totalQty>bremain) return out({ok:false,error:"insufficient_batch"});
+      if(totalQty&lt;=0) return out({ok:false,error:"empty_plan"});
+      if(totalQty&gt;bremain) return out({ok:false,error:"insufficient_batch"});
 
       bs2.getRange(brow,4).setValue(bremain-totalQty);
 
       var pss2=ss.getSheetByName("مخزون");
       var pvals2=pss2.getDataRange().getValues();
       var newBal=0;
-      for(var m=1;m<pvals2.length;m++){
+      for(var m=1;m&lt;pvals2.length;m++){
         if(pvals2[m][1]===b.product){
           var curQ=parseFloat(pvals2[m][4])||0;
           newBal=curQ-totalQty;
@@ -817,7 +817,7 @@ function handle(e){
       var ps2=ss.getSheetByName("زراعة الشتلات");
       if(!ps2) return out({ok:false,error:"sheet_not_found"});
       var pv=ps2.getDataRange().getValues();
-      for(var r=1;r<pv.length;r++){
+      for(var r=1;r&lt;pv.length;r++){
         if(pv[r][0]===b.batchCode && String(pv[r][3])===String(b.table) && pv[r][5]==="لم يُنفذ"){
           ps2.getRange(r+1,6).setValue("مكتمل");
           break;
@@ -860,13 +860,13 @@ function handle(e){
       var pvals=pss.getDataRange().getValues();
       var consumed=b.consumed||[];
       var batchSheetForConsume=null;
-      for(var c=0;c<consumed.length;c++){
+      for(var c=0;c&lt;consumed.length;c++){
         var item=consumed[c];
-        for(var r=1;r<pvals.length;r++){
+        for(var r=1;r&lt;pvals.length;r++){
           if(pvals[r][1]===item.name){
             var curQ=parseFloat(pvals[r][4])||0;
             var newQ=curQ-parseFloat(item.qty);
-            if(newQ<0)return out({ok:false,error:"insufficient:"+item.name});
+            if(newQ&lt;0)return out({ok:false,error:"insufficient:"+item.name});
             pss.getRange(r+1,5).setValue(newQ);
             var usedBatches=[];
             var itemType=String(pvals[r][6]||"خام");
@@ -874,10 +874,10 @@ function handle(e){
               if(!batchSheetForConsume)batchSheetForConsume=goc(ss,"دفعات",["كود الدفعة","المنتج","الكمية الأصلية","الكمية المتبقية","تاريخ الإنتاج","المصدر","بواسطة","ملاحظة"]);
               var bvalsC=batchSheetForConsume.getDataRange().getValues();
               var rowsForProd=[];
-              for(var bi=1;bi<bvalsC.length;bi++){if(bvalsC[bi][1]===item.name&&parseFloat(bvalsC[bi][3])>0)rowsForProd.push({row:bi+1,date:String(bvalsC[bi][4]),remain:parseFloat(bvalsC[bi][3])||0,code:bvalsC[bi][0]});}
-              rowsForProd.sort(function(x,y){return x.date<y.date?-1:1;});
+              for(var bi=1;bi&lt;bvalsC.length;bi++){if(bvalsC[bi][1]===item.name&&parseFloat(bvalsC[bi][3])&gt;0)rowsForProd.push({row:bi+1,date:String(bvalsC[bi][4]),remain:parseFloat(bvalsC[bi][3])||0,code:bvalsC[bi][0]});}
+              rowsForProd.sort(function(x,y){return x.date&lt;y.date?-1:1;});
               var need=parseFloat(item.qty);
-              for(var bj=0;bj<rowsForProd.length&&need>0;bj++){
+              for(var bj=0;bj&lt;rowsForProd.length&&need&gt;0;bj++){
                 var take=Math.min(need,rowsForProd[bj].remain);
                 batchSheetForConsume.getRange(rowsForProd[bj].row,4).setValue(rowsForProd[bj].remain-take);
                 usedBatches.push(rowsForProd[bj].code);
@@ -892,9 +892,9 @@ function handle(e){
       }
       var outRow=-1;
       var pvals2=pss.getDataRange().getValues();
-      for(var r2=1;r2<pvals2.length;r2++){if(pvals2[r2][1]===b.product){outRow=r2+1;break;}}
+      for(var r2=1;r2&lt;pvals2.length;r2++){if(pvals2[r2][1]===b.product){outRow=r2+1;break;}}
       var newOutQty=parseFloat(b.qty);
-      if(outRow>0){
+      if(outRow&gt;0){
         var curOutQ=parseFloat(pvals2[outRow-1][4])||0;
         newOutQty=curOutQ+parseFloat(b.qty);
         pss.getRange(outRow,5).setValue(newOutQty);
@@ -910,15 +910,15 @@ function handle(e){
       var bs2=ss.getSheetByName("دفعات");
       var bvals=bs2.getDataRange().getValues();
       var brow=-1,bremain=0;
-      for(var k=1;k<bvals.length;k++){if(bvals[k][0]===b.batchCode){brow=k+1;bremain=parseFloat(bvals[k][3])||0;break;}}
-      if(brow<0)return out({ok:false,error:"batch_not_found"});
+      for(var k=1;k&lt;bvals.length;k++){if(bvals[k][0]===b.batchCode){brow=k+1;bremain=parseFloat(bvals[k][3])||0;break;}}
+      if(brow&lt;0)return out({ok:false,error:"batch_not_found"});
       var wq=parseFloat(b.qty);
-      if(wq>bremain)return out({ok:false,error:"insufficient_batch"});
+      if(wq&gt;bremain)return out({ok:false,error:"insufficient_batch"});
       bs2.getRange(brow,4).setValue(bremain-wq);
       var pss2=ss.getSheetByName("مخزون");
       var pvals3=pss2.getDataRange().getValues();
       var newBal=0;
-      for(var m=1;m<pvals3.length;m++){
+      for(var m=1;m&lt;pvals3.length;m++){
         if(pvals3[m][1]===b.product){
           var curQ2=parseFloat(pvals3[m][4])||0;
           newBal=curQ2-wq;
